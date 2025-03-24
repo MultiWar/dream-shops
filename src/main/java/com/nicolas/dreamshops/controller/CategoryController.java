@@ -1,5 +1,6 @@
 package com.nicolas.dreamshops.controller;
 
+import com.nicolas.dreamshops.dto.category.CategoryDto;
 import com.nicolas.dreamshops.exceptions.AlreadyExistsException;
 import com.nicolas.dreamshops.exceptions.ResourceNotFoundException;
 import com.nicolas.dreamshops.model.Category;
@@ -24,8 +25,9 @@ public class CategoryController {
     public ResponseEntity<ApiResponse> getAllCategories() {
         try {
             List<Category> categories = categoryService.getAllCategories();
+            List<CategoryDto> categoriesDtos = categoryService.getCategoriesDTOs(categories);
 
-            return ResponseEntity.ok(new ApiResponse("", categories));
+            return ResponseEntity.ok(new ApiResponse("", categoriesDtos));
         } catch (Exception e) {
             return ResponseEntity
                     .status(INTERNAL_SERVER_ERROR)
@@ -61,7 +63,8 @@ public class CategoryController {
     public ResponseEntity<ApiResponse> getCategoryById(@PathVariable Long id) {
         try {
             Category category = categoryService.getCategoryById(id);
-            return ResponseEntity.ok(new ApiResponse("", category));
+            CategoryDto categoryDto = categoryService.convertToDTO(category);
+            return ResponseEntity.ok(new ApiResponse("", categoryDto));
         } catch (ResourceNotFoundException e) {
             return ResponseEntity.status(NOT_FOUND).body(new ApiResponse(e.getMessage(), null));
         }
@@ -71,7 +74,8 @@ public class CategoryController {
     public ResponseEntity<ApiResponse> getCategoryByName(@PathVariable String name) {
         try {
             Category category = categoryService.getCategoryByName(name);
-            return ResponseEntity.ok(new ApiResponse("", category));
+            CategoryDto categoryDto = categoryService.convertToDTO(category);
+            return ResponseEntity.ok(new ApiResponse("", categoryDto));
         } catch (ResourceNotFoundException e) {
             return ResponseEntity.status(NOT_FOUND).body(new ApiResponse(e.getMessage(), null));
         }
@@ -81,7 +85,8 @@ public class CategoryController {
     public ResponseEntity<ApiResponse> addCategory(@RequestBody Category newCategory) {
         try {
             Category category = categoryService.addCategory(newCategory);
-            return ResponseEntity.ok(new ApiResponse("Category added!", category));
+            CategoryDto categoryDto = categoryService.convertToDTO(category);
+            return ResponseEntity.ok(new ApiResponse("Category added!", categoryDto));
         } catch (AlreadyExistsException e) {
             return ResponseEntity.status(CONFLICT).body(new ApiResponse(e.getMessage(), null));
         }
@@ -91,7 +96,8 @@ public class CategoryController {
     public ResponseEntity<ApiResponse> updateCategory(@RequestBody Category category, @PathVariable Long id) {
         try {
             Category updatedCategory = categoryService.updateCategory(category, id);
-            return ResponseEntity.ok(new ApiResponse("Category updated!", category));
+            CategoryDto categoryDto = categoryService.convertToDTO(updatedCategory);
+            return ResponseEntity.ok(new ApiResponse("Category updated!", categoryDto));
         } catch (ResourceNotFoundException e) {
             return ResponseEntity.status(NOT_FOUND).body(new ApiResponse(e.getMessage(), null));
         }
@@ -106,5 +112,4 @@ public class CategoryController {
             return ResponseEntity.status(NOT_FOUND).body(new ApiResponse(e.getMessage(), null));
         }
     }
-
 }

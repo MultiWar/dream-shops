@@ -1,6 +1,6 @@
 package com.nicolas.dreamshops.service.image;
 
-import com.nicolas.dreamshops.dto.ImageDto;
+import com.nicolas.dreamshops.dto.image.ImageDto;
 import com.nicolas.dreamshops.exceptions.ResourceNotFoundException;
 import com.nicolas.dreamshops.model.Image;
 import com.nicolas.dreamshops.model.Product;
@@ -47,7 +47,7 @@ public class ImageService implements IImageService {
                 image.setImage(new SerialBlob(file.getBytes()));
                 image.setProduct(product);
 
-                String downloadUrlPath = "/api/v1/images/image/download";
+                String downloadUrlPath = "/api/v1/images/image/download/";
 
 //              I don't understand why he does this first in the video, so I'll try without it
 //              image.setDownloadUrl(downloadUrlPath + image.getId());
@@ -58,9 +58,9 @@ public class ImageService implements IImageService {
                 imageRepository.save(savedImage);
 
                 ImageDto imageDto = new ImageDto();
-                imageDto.setImageId(savedImage.getId());
-                imageDto.setImageName(savedImage.getFileName());
-                imageDto.setImageDownloadUrl(savedImage.getDownloadUrl());
+                imageDto.setId(savedImage.getId());
+                imageDto.setFileName(savedImage.getFileName());
+                imageDto.setDownloadUrl(savedImage.getDownloadUrl());
 
                 savedImagesDtos.add(imageDto);
             } catch(IOException | SQLException e) {

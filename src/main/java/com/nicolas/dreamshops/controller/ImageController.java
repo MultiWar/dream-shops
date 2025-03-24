@@ -1,6 +1,6 @@
 package com.nicolas.dreamshops.controller;
 
-import com.nicolas.dreamshops.dto.ImageDto;
+import com.nicolas.dreamshops.dto.image.ImageDto;
 import com.nicolas.dreamshops.exceptions.ResourceNotFoundException;
 import com.nicolas.dreamshops.model.Image;
 import com.nicolas.dreamshops.response.ApiResponse;

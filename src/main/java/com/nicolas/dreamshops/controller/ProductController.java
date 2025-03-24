@@ -1,5 +1,6 @@
 package com.nicolas.dreamshops.controller;
 
+import com.nicolas.dreamshops.dto.product.ProductDto;
 import com.nicolas.dreamshops.exceptions.ResourceNotFoundException;
 import com.nicolas.dreamshops.model.Product;
 import com.nicolas.dreamshops.request.AddProductRequest;
@@ -7,14 +8,9 @@ import com.nicolas.dreamshops.request.UpdateProductRequest;
 import com.nicolas.dreamshops.response.ApiResponse;
 import com.nicolas.dreamshops.service.product.IProductService;
 import lombok.RequiredArgsConstructor;
-import org.apache.coyote.Response;
-import org.springframework.core.io.Resource;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.sql.SQLException;
 import java.util.List;
 
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
@@ -26,17 +22,19 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 public class ProductController {
     private final IProductService productService;
 
-    @GetMapping()
+    @GetMapping("/")
     public ResponseEntity<ApiResponse> getAllProducts() {
         List<Product> products = productService.getAllProducts();
-        return ResponseEntity.ok(new ApiResponse("", products));
+        List<ProductDto> productDtos = productService.getConvertedProducts(products);
+        return ResponseEntity.ok(new ApiResponse("", productDtos));
     }
 
     @GetMapping("/product/{id}")
     public ResponseEntity<ApiResponse> getProductById(@PathVariable Long id) {
         try {
             Product product = productService.getProductById(id);
-            return ResponseEntity.ok(new ApiResponse("", product));
+            ProductDto productDto = productService.convertToDTO(product);
+            return ResponseEntity.ok(new ApiResponse("", productDto));
         } catch (ResourceNotFoundException e) {
             return ResponseEntity.status(NOT_FOUND).body(new ApiResponse(e.getMessage(), null));
         }
@@ -97,7 +95,8 @@ public class ProductController {
                 return ResponseEntity.status(NOT_FOUND).body(new ApiResponse("No products found", null));
             }
 
-            return ResponseEntity.ok(new ApiResponse("", products));
+            List<ProductDto> productDtos = productService.getConvertedProducts(products);
+            return ResponseEntity.ok(new ApiResponse("", productDtos));
         } catch (Exception e) {
             return ResponseEntity.status(INTERNAL_SERVER_ERROR).body(new ApiResponse(e.getMessage(), null));
         }
@@ -111,7 +110,18 @@ public class ProductController {
                 return ResponseEntity.status(NOT_FOUND).body(new ApiResponse("No products found", null));
             }
 
-            return ResponseEntity.ok(new ApiResponse("", products));
+            List<ProductDto> productDtos = productService.getConvertedProducts(products);
+            return ResponseEntity.ok(new ApiResponse("", productDtos));
+        } catch (Exception e) {
+            return ResponseEntity.status(INTERNAL_SERVER_ERROR).body(new ApiResponse(e.getMessage(), null));
+        }
+    }
+
+    @GetMapping("/by/brand-and-name/count")
+    public ResponseEntity<ApiResponse> countProductsByBrandAndName(@RequestParam String brand, @RequestParam String name) {
+        try {
+            Long count = productService.countProductsByBrandAndName(brand, name);
+            return ResponseEntity.ok(new ApiResponse("", count));
         } catch (Exception e) {
             return ResponseEntity.status(INTERNAL_SERVER_ERROR).body(new ApiResponse(e.getMessage(), null));
         }
@@ -125,7 +135,8 @@ public class ProductController {
                 return ResponseEntity.status(NOT_FOUND).body(new ApiResponse("Products not found", null));
             }
 
-            return ResponseEntity.ok(new ApiResponse("", products));
+            List<ProductDto> productDtos = productService.getConvertedProducts(products);
+            return ResponseEntity.ok(new ApiResponse("", productDtos));
         } catch (Exception e) {
             return ResponseEntity.status(INTERNAL_SERVER_ERROR).body(new ApiResponse(e.getMessage(), null));
         }
@@ -139,7 +150,8 @@ public class ProductController {
                 return ResponseEntity.status(NOT_FOUND).body(new ApiResponse("No products found", null));
             }
 
-            return ResponseEntity.ok(new ApiResponse("", products));
+            List<ProductDto> productDtos = productService.getConvertedProducts(products);
+            return ResponseEntity.ok(new ApiResponse("", productDtos));
         } catch (Exception e) {
             return ResponseEntity.status(INTERNAL_SERVER_ERROR).body(new ApiResponse(e.getMessage(), null));
         }
@@ -149,7 +161,8 @@ public class ProductController {
     public ResponseEntity<ApiResponse> addProduct(@RequestBody AddProductRequest productRequest) {
         try {
             Product product = productService.addProduct(productRequest);
-            return ResponseEntity.ok(new ApiResponse("Added product successfully!", product));
+            ProductDto productDto = productService.convertToDTO(product);
+            return ResponseEntity.ok(new ApiResponse("Added product successfully!", productDto));
         } catch (Exception e) {
             return ResponseEntity.status(INTERNAL_SERVER_ERROR).body(new ApiResponse(e.getMessage(), null));
         }
@@ -159,7 +172,8 @@ public class ProductController {
     public ResponseEntity<ApiResponse> updateProduct(@RequestBody UpdateProductRequest productRequest, @PathVariable Long id) {
         try {
             Product product = productService.updateProduct(productRequest, id);
-            return ResponseEntity.ok(new ApiResponse("Product updated!", product));
+            ProductDto productDto = productService.convertToDTO(product);
+            return ResponseEntity.ok(new ApiResponse("Product updated!", productDto));
         } catch (ResourceNotFoundException e) {
             return ResponseEntity.status(NOT_FOUND).body(new ApiResponse(e.getMessage(), null));
         }
